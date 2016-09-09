@@ -111,32 +111,33 @@ function currentSelectedIndustry() {
 
 function parseData(data, prob) {
     r = [];
-    for (i = 0; i < data.length; i++) {
-        r.push({
+    for (var key in data.S12000033) {
+            r.push({
             mode: 'markers',
-            x: [data[i].construction],
-            y: [data[i].growth],
+            x: [data.S12000033[key]],
+            y: [prob.S12000033[key]],
             marker: {
                 sizemode: 'area',
-                //size: [prob[data[i].LAD14CD].construction*1000],
+                //size: [data],
                 sizeref: '2'
             }
         });
     }
+    console.log(r);
     return r;
 }
 
 
-function analyze(error, business_data, complexity, prod_complexity, prob) {
+function analyze(error, business_data, prod_complexity, prob) {
     if (error) {
         console.log(error);
     }
 
-    complexity.forEach(function(d) {
+    prod_complexity.forEach(function(d) {
         d.value = +d.value;
     });
 
-    business_data.forEach(function(d) {
+    /*business_data.forEach(function(d) {
         d.growth = +d.growth;
         d.construction = +d.construction;
         d.manufacture_advanced = +d.manufacture_advanced;
@@ -202,9 +203,9 @@ function analyze(error, business_data, complexity, prod_complexity, prob) {
         d.services_waste_recycling = +d.services_waste_recycling;
         d.wholesale_repair_machinery = +d.wholesale_repair_machinery;
         d.wholesale_retail_misc = +d.wholesale_retail_misc;
-    });
+    });*/
 
-        var data = parseData(business_data, prob)
+        var data = parseData(business_data, prob);
 
         var layout = {
             showlegend: false,
@@ -226,7 +227,7 @@ function analyze(error, business_data, complexity, prod_complexity, prob) {
 }
 
 queue()
-    .defer(d3.csv, "/data/business_data.csv")
+    .defer(d3.json, "/data/business_data.json")
     .defer(d3.csv, "/data/lad_complexity.csv")
     .defer(d3.json, "/data/probabilities.json")
     .await(analyze);
