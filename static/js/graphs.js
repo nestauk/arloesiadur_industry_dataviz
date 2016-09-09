@@ -211,7 +211,8 @@ function analyze(error, business_data, prod_complexity, prob) {
             showlegend: false,
             xaxis: {
                 title: 'Business Growth 2011 - 2015',
-                style: 'log'
+                type: 'log',
+                autorange: true
             },
             yaxis: {
                 title: 'Predicted Business Growth',
