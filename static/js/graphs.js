@@ -114,11 +114,19 @@ function parseData(data, prob, prod_complexity) {
     var x = [];
     var y = [];
     var color = [];
+    var text = [];
     for (var key in data.S12000033) {
         if (key !== "growth" && key !== "LAD14NM") {
-            x.push(data.S12000033[key]);
-            y.push(prob.S12000033[key]);
-            color.push(prod_complexity[key].score);
+            var number = data.S12000033[key];
+            var probability = prob.S12000033[key];
+            var color_value = prod_complexity[key].score;
+            x.push(number);
+            y.push(probability);
+            color.push(color_value);
+            text.push('Industry:&nbsp;' + '<b>' + key + '</b><br>' +
+                      'Number of businesses:&nbsp;' + number + '<br>' +
+                      'Probability of growth in industry in area:&nbsp;' +
+                      probability + '<br>' + 'Product Complexity:&nbsp;' + color_value);
         }
     }
     marker_data = [{
@@ -130,8 +138,8 @@ function parseData(data, prob, prod_complexity) {
             size: 20,
             sizeref: '2em',
             colorscale: 'YlOrRd',
-            cmin: -3,
-            cmax: 3,
+            cmin: -2.5,
+            cmax: 2.5,
             color: color,
             colorbar: {
                 titleside: 'right',
@@ -141,12 +149,12 @@ function parseData(data, prob, prod_complexity) {
                 tickfont: 'Arial',
                 fontsize: 4
             }
-        }
+        },
+        text: text,
+        hoverinfo: 'text'
     }];
-    console.log(marker_data);
     return marker_data;
 }
-
 
 function analyze(error, business_data, prod_complexity, prob) {
     if (error) {
