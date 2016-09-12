@@ -110,34 +110,41 @@ function currentSelectedIndustry() {
 }
 
 function parseData(data, prob, prod_complexity) {
-    r = [];
+    var marker_data = [];
+    var x = [];
+    var y = [];
+    var color = [];
     for (var key in data.S12000033) {
         if (key !== "growth" && key !== "LAD14NM") {
-            r.push({
-                x: [data.S12000033[key]],
-                y: [prob.S12000033[key]],
-                mode: 'markers',
-                marker: {
-                    sizemode: 'area',
-                    size: 20,
-                    sizeref: '2em',
-                    colorscale: 'YlOrRd',
-                    cmin: -3,
-                    cmax: 3,
-                    color: [prod_complexity[key].score],
-                    colorbar: {
-                        titleside: 'right',
-                        outlinecolor: 'rgba(68,68,68,0)',
-                        ticks: 'none',
-                        ticklen: 0,
-                        tickfont: 'Arial',
-                        fontsize: 4
-                    }
-                },
-            });
+            x.push(data.S12000033[key]);
+            y.push(prob.S12000033[key]);
+            color.push(prod_complexity[key].score);
         }
     }
-    return r;
+    marker_data = [{
+        x: x,
+        y: y,
+        mode: 'markers',
+        marker: {
+            sizemode: 'area',
+            size: 20,
+            sizeref: '2em',
+            colorscale: 'YlOrRd',
+            cmin: -3,
+            cmax: 3,
+            color: color,
+            colorbar: {
+                titleside: 'right',
+                outlinecolor: 'rgba(68,68,68,0)',
+                ticks: 'none',
+                ticklen: 0,
+                tickfont: 'Arial',
+                fontsize: 4
+            }
+        }
+    }];
+    console.log(marker_data);
+    return marker_data;
 }
 
 
@@ -224,7 +231,7 @@ function analyze(error, business_data, prod_complexity, prob) {
                 autorange: true
             },
             yaxis: {
-                title: 'Predicted Business Growth',
+                title: 'Probability of Growth in Sector in Area',
             },
             margin: {
                 t: 10
