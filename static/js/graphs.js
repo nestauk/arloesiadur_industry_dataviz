@@ -109,21 +109,34 @@ function currentSelectedIndustry() {
     return $("#indList").val();
 }
 
-function parseData(data, prob) {
+function parseData(data, prob, prod_complexity) {
     r = [];
     for (var key in data.S12000033) {
+        if (key !== "growth" && key !== "LAD14NM") {
             r.push({
-            mode: 'markers',
-            x: [data.S12000033[key]],
-            y: [prob.S12000033[key]],
-            marker: {
-                sizemode: 'area',
-                //size: [data],
-                sizeref: '2'
-            }
-        });
+                x: [data.S12000033[key]],
+                y: [prob.S12000033[key]],
+                mode: 'markers',
+                marker: {
+                    sizemode: 'area',
+                    size: 20,
+                    sizeref: '2em',
+                    colorscale: 'YlOrRd',
+                    cmin: -3,
+                    cmax: 3,
+                    color: [prod_complexity[key].score],
+                    colorbar: {
+                        titleside: 'right',
+                        outlinecolor: 'rgba(68,68,68,0)',
+                        ticks: 'none',
+                        ticklen: 0,
+                        tickfont: 'Arial',
+                        fontsize: 4
+                    }
+                },
+            });
+        }
     }
-    console.log(r);
     return r;
 }
 
@@ -132,10 +145,6 @@ function analyze(error, business_data, prod_complexity, prob) {
     if (error) {
         console.log(error);
     }
-
-    prod_complexity.forEach(function(d) {
-        d.value = +d.value;
-    });
 
     /*business_data.forEach(function(d) {
         d.growth = +d.growth;
@@ -205,12 +214,12 @@ function analyze(error, business_data, prod_complexity, prob) {
         d.wholesale_retail_misc = +d.wholesale_retail_misc;
     });*/
 
-        var data = parseData(business_data, prob);
+        var data = parseData(business_data, prob, prod_complexity);
 
         var layout = {
             showlegend: false,
             xaxis: {
-                title: 'Business Growth 2011 - 2015',
+                title: 'Number of Businesses - 2015',
                 type: 'log',
                 autorange: true
             },
@@ -229,6 +238,6 @@ function analyze(error, business_data, prod_complexity, prob) {
 
 queue()
     .defer(d3.json, "/data/business_data.json")
-    .defer(d3.csv, "/data/lad_complexity.csv")
+    .defer(d3.json, "/data/product_complexity_2015.json")
     .defer(d3.json, "/data/probabilities.json")
     .await(analyze);
