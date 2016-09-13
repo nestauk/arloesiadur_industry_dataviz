@@ -1,3 +1,7 @@
+.navbar {
+  background-color: black;
+}
+
 .fill-height {
     min-height: 100%;
     height:auto !important; /* cross-browser */
