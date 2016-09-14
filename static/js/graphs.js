@@ -46,9 +46,10 @@ function addTopoData(data) {
 }
 
 function handleLayer(layer) {
-    var fillColor = colorScale(complexityData[layer.feature.id].value).hex();
+    var complexity = complexityData[layer.feature.id].value;
+    layer.feature.properties.complexity = complexity;
     layer.setStyle({
-        fillColor: fillColor,
+        fillColor: colorScale(complexity).hex(),
         fillOpacity: 0.6,
         weight: 0.5,
         opacity: 1,
@@ -72,6 +73,7 @@ function enterLayer() {
         fillOpacity: 1,
         color: '#666666'
     });
+    info.update(this.feature.properties);
 }
 
 function leaveLayer() {
@@ -90,6 +92,24 @@ var topoLayer = new L.TopoJSON();
 var colorScale = chroma
     .scale(chroma.brewer.YlOrRd)
     .domain([-2.1227372118474177, 2.397453389303414]);
+
+// Information control
+var info = L.control();
+
+info.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+    this.update();
+    return this._div;
+};
+
+// method that we will use to update the control based on feature properties passed
+info.update = function (props) {
+    this._div.innerHTML = '<h4>Local Authority Complexity</h4>' +  (props ?
+        '<b>' + props.LAD13NM + '</b><br />' + props.complexity
+        : 'Hover over a Local Authority Area');
+};
+
+info.addTo(map);
 
 /* Dynamic resizing */
 $(window).on("resize", function() {
