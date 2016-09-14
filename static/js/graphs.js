@@ -109,33 +109,38 @@ function currentSelectedIndustry() {
     return $("#indList").val();
 }
 
-function parseData(data, prob, prod_complexity) {
+function parseData(n_businesses_data, prob, prod_complexity, growth_data) {
     var marker_data = [];
     var x = [];
     var y = [];
     var color = [];
     var text = [];
-    for (var key in data.S12000033) {
+    var size = [];
+    for (var key in n_businesses_data.S12000033) {
         if (key !== "growth" && key !== "LAD14NM") {
-            var number = data.S12000033[key];
+            var n_businesses = n_businesses_data.S12000033[key];
             var probability = prob.S12000033[key];
-            var color_value = prod_complexity[key].score;
-            x.push(number);
+            var complexity_value = prod_complexity[key].score;
+            var growth_value = growth_data.S12000033[key];
+            x.push(growth_value);
             y.push(probability);
-            color.push(color_value);
+            color.push(complexity_value);
             text.push('Industry:&nbsp;' + '<b>' + key + '</b><br>' +
-                      'Number of businesses:&nbsp;' + number + '<br>' +
-                      'Probability of growth in industry in area:&nbsp;' +
-                      probability + '<br>' + 'Product Complexity:&nbsp;' + color_value);
+                'Number of businesses:&nbsp;' + n_businesses + '<br>' +
+                'Probability of growth in industry in area:&nbsp;' +
+                probability + '<br>' + 'Product Complexity:&nbsp;' + complexity_value + '<br>' +
+                'Business growth 2010 - 2015:&nbsp;' + growth_value);
+            size.push(n_businesses);
         }
     }
+
     marker_data = [{
         x: x,
         y: y,
         mode: 'markers',
         marker: {
             sizemode: 'area',
-            size: 20,
+            size: size,
             sizeref: '2em',
             colorscale: 'YlOrRd',
             cmin: -2.5,
@@ -156,22 +161,25 @@ function parseData(data, prob, prod_complexity) {
     return marker_data;
 }
 
-function analyze(error, business_data, prod_complexity, prob) {
+function analyze(error, num_businesses, prod_complexity, prob, growth) {
     if (error) {
         console.log(error);
     }
 
-    var data = parseData(business_data, prob, prod_complexity);
+    var data = parseData(num_businesses, prob, prod_complexity, growth);
 
     var layout = {
         showlegend: false,
         xaxis: {
-            title: 'Number of Businesses - 2015',
-            type: 'log',
-            autorange: true
+            title: 'Sector Growth 2011 - 2015',
+            autorange: true,
+            zeroline: false,
+            dtick: 0.5,
         },
         yaxis: {
-            title: 'Probability of Growth in Sector in Area',
+            title: 'Probability of Growth in Sector in Area in 2016',
+            zeroline: false,
+            dtick: 0.1
         },
         margin: {
             t: 10
@@ -187,4 +195,5 @@ queue()
     .defer(d3.json, "/data/business_data.json")
     .defer(d3.json, "/data/product_complexity_2015.json")
     .defer(d3.json, "/data/probabilities.json")
+    .defer(d3.json, "/data/business_growth_2010_2015.json")
     .await(analyze);
