@@ -65,10 +65,9 @@ function handleLayer(layer) {
 function selectLayer(layer) {
     layer.bringToFront();
     layer.setStyle({
-        weight: 3,
+        weight: 5,
         opacity: 1,
-        fillOpacity: 1,
-        color: '#666666'
+        color: 'grey'
     });
     info.update(layer.feature.properties);
 }
@@ -90,7 +89,6 @@ function areaChanged() {
         selectedArea = $("#areas").val();
     } else {
         var deselectId = reverseLookup[selectedArea].LAD14CD;
-        console.log(deselectId);
         topoLayer.eachLayer(function(layer) {
             if (layer.feature.id == deselectId) {
                 deselectLayer(layer);
@@ -102,6 +100,7 @@ function areaChanged() {
     topoLayer.eachLayer(function(layer) {
         if (layer.feature.id == id) {
             selectLayer(layer);
+            map.fitBounds(layer.getBounds());
         }
     });
 }
@@ -140,7 +139,7 @@ var AreaControl = L.Control.extend({
     //function to be called when the control is added to the map
     onAdd: function(map) {
         //create the control container with a css class name
-        var container = L.DomUtil.create('div', 'area-control');
+        var container = L.DomUtil.create('div', 'dropdown');
         //jquery method to retrieve JSON object
         $.getJSON("data/LAD_2014_UK_NC.json",
             function(data) {
@@ -166,7 +165,7 @@ var AreaControl = L.Control.extend({
                 //allow a user to select a single option
                 container.firstChild.onmousedown =
                     container.firstChild.ondblclick =
-                    L.DomEvent.stopPropagation;
+                        L.DomEvent.stopPropagation;
 
             });
         return container;
