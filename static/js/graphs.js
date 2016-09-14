@@ -191,10 +191,6 @@ loadData();
 
 var chart;
 
-function currentSelectedIndustry() {
-    return $("#indList").val();
-}
-
 function parseData(n_businesses_data, prob, prod_complexity, growth_data) {
     var marker_data = [];
     var x = [];
