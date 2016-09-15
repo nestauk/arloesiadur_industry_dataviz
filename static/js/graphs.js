@@ -96,6 +96,7 @@ function areaChanged() {
         });
     }
     selectedArea = $("#areas").val();
+    analyze();
     var id = reverseLookup[selectedArea].LAD14CD;
     topoLayer.eachLayer(function(layer) {
         if (layer.feature.id == id) {
@@ -112,7 +113,8 @@ function parseData(n_businesses_data, prob, prod_complexity, growth_data) {
     var color = [];
     var text = [];
     var size = [];
-    var id = $("areas").val() ? $("areas").val() === undefined : "E09000001";
+    var selectedArea = $("#areas").val() !== undefined ? $("#areas").val() : "City of London";
+    var id = reverseLookup[selectedArea].LAD14CD;
     console.log(id);
     for (var key in n_businesses_data[id]) {
         if (key !== "growth" && key !== "LAD14NM") {
@@ -262,7 +264,6 @@ var AreaControl = L.Control.extend({
 map.addControl(new AreaControl('areas', {
     position: 'topright'
 }));
-
 
 /* Dynamic resizing */
 $(window).on("resize", function() {
