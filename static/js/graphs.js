@@ -96,12 +96,100 @@ function areaChanged() {
         });
     }
     selectedArea = $("#areas").val();
+    analyze();
     var id = reverseLookup[selectedArea].LAD14CD;
     topoLayer.eachLayer(function(layer) {
         if (layer.feature.id == id) {
             selectLayer(layer);
             map.fitBounds(layer.getBounds());
         }
+    });
+}
+
+function parseData(n_businesses_data, prob, prod_complexity, growth_data) {
+    var marker_data = [];
+    var x = [];
+    var y = [];
+    var color = [];
+    var text = [];
+    var size = [];
+    var selectedArea = $("#areas").val() !== undefined ? $("#areas").val() : "City of London";
+    var id = reverseLookup[selectedArea].LAD14CD;
+    console.log(id);
+    for (var key in n_businesses_data[id]) {
+        if (key !== "growth" && key !== "LAD14NM") {
+            var n_businesses = n_businesses_data[id][key];
+            var probability = prob[id][key];
+            var complexity_value = prod_complexity[key].score;
+            var growth_value = growth_data[id][key];
+            x.push(growth_value);
+            y.push(probability);
+            color.push(complexity_value);
+            text.push('Industry:&nbsp;' + '<b>' + key + '</b><br>' +
+                'Number of businesses:&nbsp;' + n_businesses + '<br>' +
+                'Probability of growth in industry in area:&nbsp;' +
+                probability + '<br>' + 'Product Complexity:&nbsp;' + complexity_value + '<br>' +
+                'Business growth 2010 - 2015:&nbsp;' + growth_value);
+            size.push(n_businesses);
+        }
+    }
+
+    marker_data = [{
+        x: x,
+        y: y,
+        mode: 'markers',
+        marker: {
+            sizemode: 'area',
+            size: size,
+            sizeref: '2em',
+            colorscale: 'YlOrRd',
+            cmin: -2.5,
+            cmax: 2.5,
+            color: color,
+            colorbar: {
+                titleside: 'right',
+                outlinecolor: 'rgba(68,68,68,0)',
+                ticks: 'none',
+                ticklen: 0,
+                tickfont: 'Arial',
+                fontsize: 4
+            }
+        },
+        text: text,
+        hoverinfo: 'text'
+    }];
+    return marker_data;
+}
+
+function analyze() {
+    var data = parseData(
+        business_data,
+        probabilities,
+        product_complexity,
+        business_growth
+    );
+
+    var layout = {
+        showlegend: false,
+        autosize: true,
+        xaxis: {
+            title: 'Sector Growth 2011 - 2015',
+            autorange: true,
+            zeroline: false,
+            dtick: 0.5,
+        },
+        yaxis: {
+            title: 'Probability of Growth in Sector in Area in 2016',
+            zeroline: false,
+            dtick: 0.1
+        },
+        margin: {
+            t: 10
+        },
+        hovermode: 'closest',
+    };
+    Plotly.newPlot('chart', data, layout, {
+        showLink: false
     });
 }
 
@@ -168,6 +256,7 @@ var AreaControl = L.Control.extend({
                         L.DomEvent.stopPropagation;
 
             });
+        analyze();
         return container;
     }
 });
@@ -175,7 +264,6 @@ var AreaControl = L.Control.extend({
 map.addControl(new AreaControl('areas', {
     position: 'topright'
 }));
-
 
 /* Dynamic resizing */
 $(window).on("resize", function() {
@@ -185,98 +273,3 @@ $(window).on("resize", function() {
 }).trigger("resize");
 
 loadData();
-
-/*--------------------------------------------------------------*/
-/* Charts */
-
-var chart;
-
-function parseData(n_businesses_data, prob, prod_complexity, growth_data) {
-    var marker_data = [];
-    var x = [];
-    var y = [];
-    var color = [];
-    var text = [];
-    var size = [];
-    for (var key in n_businesses_data.S12000033) {
-        if (key !== "growth" && key !== "LAD14NM") {
-            var n_businesses = n_businesses_data.S12000033[key];
-            var probability = prob.S12000033[key];
-            var complexity_value = prod_complexity[key].score;
-            var growth_value = growth_data.S12000033[key];
-            x.push(growth_value);
-            y.push(probability);
-            color.push(complexity_value);
-            text.push('Industry:&nbsp;' + '<b>' + key + '</b><br>' +
-                'Number of businesses:&nbsp;' + n_businesses + '<br>' +
-                'Probability of growth in industry in area:&nbsp;' +
-                probability + '<br>' + 'Product Complexity:&nbsp;' + complexity_value + '<br>' +
-                'Business growth 2010 - 2015:&nbsp;' + growth_value);
-            size.push(n_businesses);
-        }
-    }
-
-    marker_data = [{
-        x: x,
-        y: y,
-        mode: 'markers',
-        marker: {
-            sizemode: 'area',
-            size: size,
-            sizeref: '2em',
-            colorscale: 'YlOrRd',
-            cmin: -2.5,
-            cmax: 2.5,
-            color: color,
-            colorbar: {
-                titleside: 'right',
-                outlinecolor: 'rgba(68,68,68,0)',
-                ticks: 'none',
-                ticklen: 0,
-                tickfont: 'Arial',
-                fontsize: 4
-            }
-        },
-        text: text,
-        hoverinfo: 'text'
-    }];
-    return marker_data;
-}
-
-function analyze(error, num_businesses, prod_complexity, prob, growth) {
-    if (error) {
-        console.log(error);
-    }
-
-    var data = parseData(num_businesses, prob, prod_complexity, growth);
-
-    var layout = {
-        showlegend: false,
-        autosize: true,
-        xaxis: {
-            title: 'Sector Growth 2011 - 2015',
-            autorange: true,
-            zeroline: false,
-            dtick: 0.5,
-        },
-        yaxis: {
-            title: 'Probability of Growth in Sector in Area in 2016',
-            zeroline: false,
-            dtick: 0.1
-        },
-        margin: {
-            t: 10
-        },
-        hovermode: 'closest',
-    };
-    Plotly.newPlot('chart', data, layout, {
-        showLink: false
-    });
-}
-
-queue()
-    .defer(d3.json, "/data/business_data.json")
-    .defer(d3.json, "/data/product_complexity_2015.json")
-    .defer(d3.json, "/data/probabilities.json")
-    .defer(d3.json, "/data/business_growth_2010_2015.json")
-    .await(analyze);
