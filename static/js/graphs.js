@@ -130,7 +130,7 @@ function parseData(n_businesses_data, prob, prod_complexity, growth_data) {
                 'Probability of growth in industry in area:&nbsp;' +
                 probability + '<br>' + 'Product Complexity:&nbsp;' + complexity_value + '<br>' +
                 'Business growth 2010 - 2015:&nbsp;' + growth_value);
-            size.push(n_businesses);
+            size.push(n_businesses * 100);
         }
     }
 
@@ -163,7 +163,7 @@ function parseData(n_businesses_data, prob, prod_complexity, growth_data) {
 
 function analyze() {
     var data = parseData(
-        business_data,
+        business_proportions,
         probabilities,
         product_complexity,
         business_growth
@@ -256,6 +256,7 @@ var AreaControl = L.Control.extend({
                         L.DomEvent.stopPropagation;
 
             });
+        console.log(business_proportions);
         analyze();
         return container;
     }
