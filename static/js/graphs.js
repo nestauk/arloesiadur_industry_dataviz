@@ -1,3 +1,6 @@
+var areas = [];
+var selectedArea;
+
 /* Custom topojson class courtesy of Ryan Clark */
 L.TopoJSON = L.GeoJSON.extend({
     addData: function(jsonData) {
@@ -57,32 +60,48 @@ function handleLayer(layer) {
         dashArray: '1',
         smoothFactor: 0.5
     });
-
-    layer.on({
-        mouseover: enterLayer,
-        mouseout: leaveLayer,
-
-    });
 }
 
-function enterLayer() {
-    this.bringToFront();
-    this.setStyle({
-        weight: 3,
+function selectLayer(layer) {
+    layer.bringToFront();
+    layer.setStyle({
+        weight: 5,
         opacity: 1,
-        fillOpacity: 1,
-        color: '#666666'
+        color: 'grey'
     });
-    info.update(this.feature.properties);
+    info.update(layer.feature.properties);
 }
 
-function leaveLayer() {
-    this.bringToBack();
-    this.setStyle({
+function deselectLayer(layer) {
+    layer.bringToBack();
+    layer.setStyle({
         weight: 1,
         opacity: 0.5,
         fillOpacity: 0.7,
         color: 'white'
+    });
+}
+
+//function called when the selected area is changed
+function areaChanged() {
+    if (selectedArea === undefined) {
+        //get the selected area name
+        selectedArea = $("#areas").val();
+    } else {
+        var deselectId = reverseLookup[selectedArea].LAD14CD;
+        topoLayer.eachLayer(function(layer) {
+            if (layer.feature.id == deselectId) {
+                deselectLayer(layer);
+            }
+        });
+    }
+    selectedArea = $("#areas").val();
+    var id = reverseLookup[selectedArea].LAD14CD;
+    topoLayer.eachLayer(function(layer) {
+        if (layer.feature.id == id) {
+            selectLayer(layer);
+            map.fitBounds(layer.getBounds());
+        }
     });
 }
 
@@ -96,20 +115,67 @@ var colorScale = chroma
 // Information control
 var info = L.control();
 
-info.onAdd = function (map) {
+info.onAdd = function(map) {
     this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
     this.update();
     return this._div;
 };
 
 // method that we will use to update the control based on feature properties passed
-info.update = function (props) {
-    this._div.innerHTML = '<h4>Local Authority Complexity</h4>' +  (props ?
-        '<b>' + props.LAD13NM + '</b><br />' + props.complexity
-        : 'Hover over a Local Authority Area');
+info.update = function(props) {
+    this._div.innerHTML = '<h4>Local Authority Complexity</h4>' + (props ?
+        '<b>' + props.LAD13NM + '</b><br />' + props.complexity : 'Hover over a Local Authority Area');
 };
 
 info.addTo(map);
+
+// Area Selection Control
+//extend the L.Control class to create a custom drop down box
+// initially with simple placeholder text
+var AreaControl = L.Control.extend({
+    initialize: function(name, options) {
+        L.Util.setOptions(this, options);
+    },
+    //function to be called when the control is added to the map
+    onAdd: function(map) {
+        //create the control container with a css class name
+        var container = L.DomUtil.create('div', 'dropdown');
+        //jquery method to retrieve JSON object
+        $.getJSON("data/LAD_2014_UK_NC.json",
+            function(data) {
+                //create the htmlString that will form the
+                //innerHTML of the forces dropdown
+                var htmlString = '<select id=areas ' +
+                    'onchange="areaChanged()">';
+                //create individual area <option> tags within the
+                //<select> tag
+                $.each(data, function(i, item) {
+                    areas[i] = item;
+                    htmlString = htmlString + '<option>' +
+                        areas[i].LAD14NM + '</option>';
+                });
+
+                //close the select tag
+                htmlString += '</select>';
+
+                //update the dropdown list innerHTML
+                //with the list of forces
+                container.innerHTML = htmlString;
+
+                //allow a user to select a single option
+                container.firstChild.onmousedown =
+                    container.firstChild.ondblclick =
+                        L.DomEvent.stopPropagation;
+
+            });
+        return container;
+    }
+});
+
+map.addControl(new AreaControl('areas', {
+    position: 'topright'
+}));
+
 
 /* Dynamic resizing */
 $(window).on("resize", function() {
@@ -124,10 +190,6 @@ loadData();
 /* Charts */
 
 var chart;
-
-function currentSelectedIndustry() {
-    return $("#indList").val();
-}
 
 function parseData(n_businesses_data, prob, prod_complexity, growth_data) {
     var marker_data = [];
@@ -190,6 +252,7 @@ function analyze(error, num_businesses, prod_complexity, prob, growth) {
 
     var layout = {
         showlegend: false,
+        autosize: true,
         xaxis: {
             title: 'Sector Growth 2011 - 2015',
             autorange: true,
