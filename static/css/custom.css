@@ -37,3 +37,7 @@
     margin: 0 0 5px;
     color: #777;
 }
+
+.chart-wrapper .chart-stage {
+    padding: 10px 10px;
+}
