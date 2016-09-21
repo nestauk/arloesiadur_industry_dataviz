@@ -192,7 +192,7 @@ function analyze() {
         hovermode: 'closest',
     };
     Plotly.newPlot('chart', data, layout, {
-        showLink: false
+        displayModeBar: false
     });
 }
 
