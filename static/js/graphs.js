@@ -118,7 +118,6 @@ function parseData(n_businesses_data, prob, prod_complexity, growth_data) {
     var size = [];
     var selectedArea = $("#areas").val() !== undefined ? $("#areas").val() : "City of London";
     var id = reverseLookup[selectedArea].LAD14CD;
-    console.log(id);
     for (var key in n_businesses_data[id]) {
         if (key !== "growth" && key !== "LAD14NM") {
             var n_businesses = n_businesses_data[id][key];
@@ -136,7 +135,6 @@ function parseData(n_businesses_data, prob, prod_complexity, growth_data) {
             size.push(n_businesses * 100);
         }
     }
-
     marker_data = [{
         x: x,
         y: y,
@@ -145,7 +143,8 @@ function parseData(n_businesses_data, prob, prod_complexity, growth_data) {
             sizemode: 'area',
             size: size,
             sizeref: '2em',
-            colorscale: 'YlOrRd',
+            autocolorscale: false,
+            colorscale: 'Portland',
             cmin: -2.5,
             cmax: 2.5,
             color: color,
@@ -259,7 +258,6 @@ var AreaControl = L.Control.extend({
                         L.DomEvent.stopPropagation;
 
             });
-        console.log(business_proportions);
         analyze();
         return container;
     }
