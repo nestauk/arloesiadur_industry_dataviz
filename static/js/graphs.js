@@ -22,7 +22,8 @@ function initMap() {
     L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="http://cartodb.com/attributions">CartoDB</a>, CartoDB <a href ="http://cartodb.com/attributions">attributions</a>',
         maxZoom: 20,
-        minZoom: 0
+        minZoom: 0,
+        clickable: false
     }).addTo(map);
     $.getJSON('./data/topo_lad.json')
         .done(addTopoData);
@@ -46,6 +47,7 @@ function addTopoData(data) {
     topoLayer.addData(data);
     topoLayer.addTo(map);
     topoLayer.eachLayer(handleLayer);
+    areaChanged();
 }
 
 function handleLayer(layer) {
@@ -58,7 +60,8 @@ function handleLayer(layer) {
         opacity: 1,
         color: 'white',
         dashArray: '1',
-        smoothFactor: 0.5
+        smoothFactor: 0.5,
+        clickable: false
     });
 }
 
@@ -101,7 +104,7 @@ function areaChanged() {
     topoLayer.eachLayer(function(layer) {
         if (layer.feature.id == id) {
             selectLayer(layer);
-            map.fitBounds(layer.getBounds());
+            map.fitBounds(layer.getBounds(), {padding: [100, 100]});
         }
     });
 }
