@@ -136,7 +136,7 @@ function parseData(business_numbers, business_proportions, prob, prod_complexity
             text.push('Industry:&nbsp;' + '<b>' + key + '</b><br>' +
                 'Number of businesses:&nbsp;<b>' + business_numbers[id][key] + '</b><br>' +
                 'Probability of growth in industry in area:&nbsp;<b>' +
-                probability.toFixed(2) + '</b><br>' + 'Product Complexity:&nbsp;<b>' + complexity_value.toFixed(2) + '</b><br>' +
+                probability.toFixed(2) + '</b><br>' + 'Industry Complexity:&nbsp;<b>' + complexity_value.toFixed(2) + '</b><br>' +
                 'Business growth 2010 - 2015:&nbsp;<b>' + growth_value.toFixed(2) + '</b>');
             size.push(proportional_businesses * 100);
         }
@@ -150,13 +150,17 @@ function parseData(business_numbers, business_proportions, prob, prod_complexity
             size: size,
             sizeref: '2em',
             autocolorscale: false,
-            colorscale: 'Portland',
+            colorscale: 'RdBu',
+            line: {
+                color: 'grey',
+            },
             cmin: -2.5,
             cmax: 2.5,
             color: color,
             colorbar: {
+                title: "Industry Complexity",
                 titleside: 'right',
-                outlinecolor: 'rgba(68,68,68,0)',
+                outlinecolor: 'grey',
                 ticks: 'none',
                 ticklen: 0,
                 tickfont: 'Arial',
@@ -185,7 +189,6 @@ function analyze() {
             title: 'Percentage (%) growth by sector 2011 - 2015',
             autorange: true,
             zeroline: false,
-            dtick: 10,
         },
         yaxis: {
             title: 'Probability of Growth by Sector 2016',
