@@ -115,7 +115,7 @@ function areaChanged() {
     });
 }
 
-function parseData(n_businesses_data, prob, prod_complexity, growth_data) {
+function parseData(business_numbers, business_proportions, prob, prod_complexity, growth_data) {
     var marker_data = [];
     var x = [];
     var y = [];
@@ -124,9 +124,9 @@ function parseData(n_businesses_data, prob, prod_complexity, growth_data) {
     var size = [];
     var selectedArea = $("#areas").val() !== undefined ? $("#areas").val() : "City of London";
     var id = reverseLookup[selectedArea].LAD14CD;
-    for (var key in n_businesses_data[id]) {
+    for (var key in business_proportions[id]) {
         if (key !== "growth" && key !== "LAD14NM") {
-            var n_businesses = n_businesses_data[id][key];
+            var proportional_businesses = business_proportions[id][key];
             var probability = prob[id][key];
             var complexity_value = prod_complexity[key].score;
             var growth_value = growth_data[id][key];
@@ -134,11 +134,11 @@ function parseData(n_businesses_data, prob, prod_complexity, growth_data) {
             y.push(probability);
             color.push(complexity_value);
             text.push('Industry:&nbsp;' + '<b>' + key + '</b><br>' +
-                'Number of businesses:&nbsp;' + n_businesses + '<br>' +
+                'Number of businesses:&nbsp;' + business_numbers[id][key] + '<br>' +
                 'Probability of growth in industry in area:&nbsp;' +
                 probability + '<br>' + 'Product Complexity:&nbsp;' + complexity_value + '<br>' +
                 'Business growth 2010 - 2015:&nbsp;' + growth_value);
-            size.push(n_businesses * 100);
+            size.push(proportional_businesses * 100);
         }
     }
     marker_data = [{
@@ -171,6 +171,7 @@ function parseData(n_businesses_data, prob, prod_complexity, growth_data) {
 
 function analyze() {
     var data = parseData(
+        business_numbers,
         business_proportions,
         probabilities,
         product_complexity,
