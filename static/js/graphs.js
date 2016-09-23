@@ -129,15 +129,15 @@ function parseData(business_numbers, business_proportions, prob, prod_complexity
             var proportional_businesses = business_proportions[id][key];
             var probability = prob[id][key];
             var complexity_value = prod_complexity[key].score;
-            var growth_value = growth_data[id][key];
+            var growth_value = growth_data[id][key] * 100;
             x.push(growth_value);
             y.push(probability);
             color.push(complexity_value);
             text.push('Industry:&nbsp;' + '<b>' + key + '</b><br>' +
-                'Number of businesses:&nbsp;' + business_numbers[id][key] + '<br>' +
-                'Probability of growth in industry in area:&nbsp;' +
-                probability + '<br>' + 'Product Complexity:&nbsp;' + complexity_value + '<br>' +
-                'Business growth 2010 - 2015:&nbsp;' + growth_value);
+                'Number of businesses:&nbsp;<b>' + business_numbers[id][key] + '</b><br>' +
+                'Probability of growth in industry in area:&nbsp;<b>' +
+                probability.toFixed(2) + '</b><br>' + 'Product Complexity:&nbsp;<b>' + complexity_value.toFixed(2) + '</b><br>' +
+                'Business growth 2010 - 2015:&nbsp;<b>' + growth_value.toFixed(2) + '</b>');
             size.push(proportional_businesses * 100);
         }
     }
@@ -182,13 +182,13 @@ function analyze() {
         showlegend: false,
         autosize: true,
         xaxis: {
-            title: 'Sector Growth 2011 - 2015',
+            title: 'Percentage (%) growth by sector 2011 - 2015',
             autorange: true,
             zeroline: false,
-            dtick: 0.5,
+            dtick: 10,
         },
         yaxis: {
-            title: 'Probability of Growth in Sector in Area in 2016',
+            title: 'Probability of Growth by Sector 2016',
             zeroline: false,
             dtick: 0.1
         },
