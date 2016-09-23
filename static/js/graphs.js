@@ -29,10 +29,6 @@ function initMap() {
         .done(addTopoData);
 }
 
-function recenter() {
-    map.fitBounds(topoLayer.getBounds());
-}
-
 function loadData() {
     $.ajax({
         url: "./data/lad_complexity.json",
@@ -63,6 +59,11 @@ function handleLayer(layer) {
         smoothFactor: 0.5,
         clickable: false
     });
+    layer.on('click', function(e) {
+        console.log(e.target.feature.properties.LAD13NM);
+        $('#areas').val(e.target.feature.properties.LAD13NM);
+        areaChanged();
+    });
 }
 
 function selectLayer(layer) {
@@ -83,6 +84,11 @@ function deselectLayer(layer) {
         fillOpacity: 0.7,
         color: 'white'
     });
+}
+
+// Change the selected element in the dropdown
+function updateAreaList() {
+
 }
 
 //function called when the selected area is changed
